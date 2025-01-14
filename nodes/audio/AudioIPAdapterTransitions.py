@@ -43,7 +43,7 @@ class AudioIPAdapterTransitions(AudioNodeBase):
 		for peak in peaks_binary:
 			if peak == 1: 
 				index_value += 1
-			switch_indices.append(index_value)
+			switch_indices.append(index_value)  # array (len total number of frames) 0000001111112222222333333
 
 		print("Generate switch indices by incrementing index at each peak")
 		print(switch_indices)
@@ -65,9 +65,9 @@ class AudioIPAdapterTransitions(AudioNodeBase):
 
 		# Map indices to image indices (cycling through images if necessary)
 		image_indices = [i % num_images for i in unique_indices]
-
 		# Create a mapping from switch index to image
 		image_mapping = {idx: images[image_idx] for idx, image_idx in zip(unique_indices, image_indices)}
+
 
 		# Initialize blending_weights, images1, images2
 		blending_weights = np.zeros(total_frames, dtype=np.float32)
@@ -81,9 +81,16 @@ class AudioIPAdapterTransitions(AudioNodeBase):
 		print(change_frames)
 
 		# For each transition, compute blending weights
-		for change_frame in change_frames:
-			start = max(0, change_frame - transition_length // 2)
-			end = min(total_frames, change_frame + (transition_length + 1) // 2)
+		for _i,change_frame in enumerate(change_frames):
+			# start = max(0, change_frames[_i] - transition_length // 2)
+			# end = min(total_frames, change_frames[_i] + (transition_length + 1) // 2)
+			start = int(max(0, change_frames[_i-1]+(change_frames[_i]- change_frames[_i-1])/2)+2)
+			try:
+				end = int(min(total_frames, change_frames[_i+1]-(change_frames[_i+1]- change_frames[_i])/2)-2)
+			except:
+				end = total_frames
+
+
 			n = end - start - 1
 			idx_prev = switch_indices[change_frame - 1] if change_frame > 0 else switch_indices[change_frame]
 			idx_next = switch_indices[change_frame]

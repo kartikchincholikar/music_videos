@@ -8,6 +8,8 @@ from PIL import Image
 from scipy.signal import find_peaks
 from ... import Yvann
 
+song_name = 'lifeitself'
+
 class AudioNodeBase(Yvann):
     CATEGORY = "👁️ Yvann Nodes/🔊 Audio"
 
@@ -40,16 +42,19 @@ class AudioPeaksDetection(AudioNodeBase):
         # peaks_binary = np.zeros_like(audio_weights, dtype=int)
         # peaks_binary[peaks] = 1
 
-        waveform, sample_rate = torchaudio.load("C:\\Users\\intro\\OneDrive\\Desktop\\audio_lifeitsef.wav")
+        waveform, sample_rate = torchaudio.load(f"C:\\Users\\intro\\Music\\music_video\\{song_name}.wav")
         n_frames = waveform.shape[1]
         duration = n_frames / float(sample_rate)        
-        timestamps = np.loadtxt("C:\\Users\\intro\\OneDrive\\Desktop\\lifeitself.txt", usecols=0)
+        timestamps = np.loadtxt(f"C:\\Users\\intro\\Music\\music_video\\{song_name}.txt", usecols=0)
         print(duration)
         print(timestamps)
         peaks = (timestamps * 24).astype(int)
-
         peaks_binary = np.zeros_like(audio_weights, dtype=int)
+
+        # Ensure peaks are within bounds of peaks_binary
+        peaks = peaks[peaks < len(peaks_binary)]
         peaks_binary[peaks] = 1
+
 
         actual_value = 0
         peaks_alternate = np.zeros_like(peaks_binary)
