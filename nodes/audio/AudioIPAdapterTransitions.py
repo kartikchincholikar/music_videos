@@ -82,14 +82,42 @@ class AudioIPAdapterTransitions(AudioNodeBase):
 
 		# For each transition, compute blending weights
 		for _i,change_frame in enumerate(change_frames):
+			print(f"change frame number: {_i}, and change frame is {change_frame}")
 			# start = max(0, change_frames[_i] - transition_length // 2)
 			# end = min(total_frames, change_frames[_i] + (transition_length + 1) // 2)
-			start = int(max(0, change_frames[_i-1]+(change_frames[_i]- change_frames[_i-1])/2)+2)
-			try:
-				end = int(min(total_frames, change_frames[_i+1]-(change_frames[_i+1]- change_frames[_i])/2)-2)
-			except:
-				end = total_frames
+			current_change_frame = change_frames[_i]
 
+			if _i!=0 and _i!=len(change_frames)-1:
+				previous_change_frame = change_frames[_i-1]
+				next_change_frame = change_frames[_i+1]
+
+				start = int(max(0, previous_change_frame+(current_change_frame- previous_change_frame)/2)+2)
+				end = int(min(total_frames, next_change_frame-(next_change_frame- current_change_frame)/2)-2)
+
+			if _i==0:
+				previous_change_frame = 0
+				next_change_frame = change_frames[_i+1]
+
+				start = 0# int(max(0, previous_change_frame+(current_change_frame- previous_change_frame)/2)+2)
+				end = int(min(total_frames, next_change_frame-(next_change_frame- current_change_frame)/2)-2)
+
+			if _i==len(change_frames)-1:
+				previous_change_frame = change_frames[_i-1]
+				next_change_frame = total_frames
+
+				start = int(max(0, previous_change_frame+(current_change_frame- previous_change_frame)/2)+2)
+				end = total_frames# int(min(total_frames, next_change_frame-(next_change_frame- current_change_frame)/2)-2)
+
+
+
+
+			# try:
+			# 	end = int(min(total_frames, change_frames[_i+1]-(change_frames[_i+1]- change_frames[_i])/2)-2)
+			# except:
+			# 	end = total_frames
+
+			print(start)
+			print(end)
 
 			n = end - start - 1
 			idx_prev = switch_indices[change_frame - 1] if change_frame > 0 else switch_indices[change_frame]
